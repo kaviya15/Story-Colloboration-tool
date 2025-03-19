@@ -3,5 +3,5 @@ const app = express();
 require("dotenv").config();
 
 app.listen(process.env.PORT || 5000, () => {
-  console.log("server started listening");
+  console.log("server started listening at port ", process.env.PORT || 5000);
 });
