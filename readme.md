@@ -1,3 +1,4 @@
 ## Story Colloboration tool
 
-Use 'npm run dev' to run server using nodemon
+'npm run dev' to run the server using nodemon
+'npm run start' to run the server without nodemon
