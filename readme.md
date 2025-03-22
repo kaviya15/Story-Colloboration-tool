@@ -1,6 +1,6 @@
 ## Story Colloboration tool
 
-### file structure
+### file structure (view this in vs code)
 
 /app
 ├── config/
