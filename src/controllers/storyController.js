@@ -6,7 +6,6 @@ const {
 const storyService = new StoryService();
 const createStoryController = async (req, res) => {
   try {
-    // console.log(req.body);
     const data = await storyService.createStoryService(req.body);
     return sendSuccessResponse(res, data);
   } catch (e) {

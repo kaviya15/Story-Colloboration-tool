@@ -5,7 +5,6 @@ const userRoutes = require("./userRoutes");
 const storyRoutes = require("./storyRoutes");
 
 // import all routes here
-console.log("router");
 router.use("/users", userRoutes);
 router.use("/story", storyRoutes);
 

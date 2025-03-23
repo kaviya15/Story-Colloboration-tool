@@ -2,10 +2,8 @@ const { StoryRepository } = require("../repositories/storyRepository");
 class StoryService {
   constructor() {
     this.storyRepository = new StoryRepository();
-    console.log(" repo story");
   }
   async createStoryService(body) {
-    console.log(" repo body", body);
     try {
       const storyData = {
         versions: [
