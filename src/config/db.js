@@ -1,8 +1,13 @@
 const mongoose = require("mongoose");
-
+let db;
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    db = conn.connection.db;
+
     console.log(" ✅ Database connected");
   } catch (error) {
     console.error("❌ Database connection failed", error);
@@ -10,4 +15,11 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB;
+const getDB = () => {
+  if (!db) {
+    throw new Error("Database not initialized. Call connectDB first.");
+  }
+  return db;
+};
+
+module.exports = { connectDB, getDB };

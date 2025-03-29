@@ -4,8 +4,8 @@ const storySchema = new mongoose.Schema(
   {
     versions: [
       {
+        coverImage: { type: mongoose.Schema.Types.ObjectId, ref: "uploads" },
         content: { type: String, default: "" },
-        img: { type: String, default: "" },
         updatedTime: { type: Date, default: Date.now },
         lastEditor: {
           type: mongoose.Schema.Types.ObjectId,
