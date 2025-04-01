@@ -1,8 +1,3 @@
-// class LogRepository {
-//   constructor() {}
-//   async getLogs() {}
-//   async addLogs() {}
-// }
 const mongoose = require("mongoose");
 const logSchema = require("../models/logModel");
 
