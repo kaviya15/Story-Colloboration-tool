@@ -1,17 +1,14 @@
 const { StoryRepository } = require("../repositories/storyRepository");
-const { GridFSBucket } = require("mongodb");
-const { getDB } = require("../config/db");
-const { base } = require("../models/storyModel");
-
+const { getImageAsBase64 } = require("../utils/imageConverter");
 class StoryService {
   constructor() {
     this.storyRepository = new StoryRepository();
-    this.db;
   }
   async createStoryService(fileId, body) {
     console.log(body, "body");
     try {
       const storyData = {
+        title: body.title,
         versions: [
           {
             content: body.content,
@@ -30,9 +27,8 @@ class StoryService {
     }
   }
 
-  async getStoryService() {
+  async getAllStoryService() {
     try {
-      this.db = getDB();
       const stories = await this.storyRepository.findStory();
 
       const storyData = await Promise.all(
@@ -61,7 +57,7 @@ class StoryService {
                 "Fetching image for ID:",
                 story["versions"].coverImage
               );
-              const base64Image = await this._getImageAsBase64(
+              const base64Image = await getImageAsBase64(
                 story["versions"].coverImage
               );
               story["versions"].coverImage = base64Image;
@@ -85,39 +81,65 @@ class StoryService {
     }
   }
 
-  async _getImageAsBase64(fileId) {
-    return new Promise((resolve, reject) => {
-      if (!fileId) {
-        console.error("Invalid fileId provided:", fileId);
-        return reject(new Error("Invalid file ID"));
+  async getStoryService(storyId) {
+    try {
+      const stories = await this.storyRepository.findStoryById(storyId);
+
+      const storyData = await Promise.all(
+        stories.map(async (story) => {
+          story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
+          if (
+            Array.isArray(story["versions"]) &&
+            story["versions"].length > 0
+          ) {
+            story["versions"] = {
+              ...story["versions"][story["versions"].length - 1],
+            };
+          }
+          if (story["versions"].coverImage) {
+            try {
+              const base64Image = await getImageAsBase64(
+                story["versions"].coverImage
+              );
+              story["versions"].coverImage = base64Image;
+            } catch (err) {
+              story["versions"].coverImage = false;
+            }
+          } else {
+            story["versions"].coverImage = false;
+          }
+
+          return story;
+        })
+      );
+
+      return storyData;
+    } catch (e) {
+      console.error("Error in getStoryService:", e);
+      return e;
+    }
+  }
+
+  async likeStoryService(storyId, body) {
+    try {
+      console.log("story id ", storyId);
+      const { userId } = body;
+      let story = await this.storyRepository.findStoryById(storyId);
+      story = story.toObject();
+      console.log("Story", story.likedBy);
+      if (!story.likedBy.some((id) => id.toString() == userId)) {
+        return await this.storyRepository.likeStory(storyId, userId);
+      } else {
+        return await this.storyRepository.unLikeStory(storyId, userId);
       }
+    } catch (err) {
+      console.log("error", err);
+      return err;
+    }
+  }
 
-      const bucket = new GridFSBucket(this.db, { bucketName: "uploads" });
-
-      try {
-        const downloadStream = bucket.openDownloadStream(fileId);
-        let data = [];
-
-        downloadStream.on("data", (chunk) => {
-          data.push(chunk);
-        });
-
-        downloadStream.on("end", () => {
-          const buffer = Buffer.concat(data);
-          const base64Image = buffer.toString("base64");
-          console.log("Image successfully converted to base64.");
-          resolve(base64Image);
-        });
-
-        downloadStream.on("error", (error) => {
-          console.error("GridFS Error:", error);
-          reject(error);
-        });
-      } catch (error) {
-        console.error("Error opening download stream:", error);
-        reject(error);
-      }
-    });
+  async notifyUserService() {
+    //use redis
   }
 }
 module.exports = { StoryService };
