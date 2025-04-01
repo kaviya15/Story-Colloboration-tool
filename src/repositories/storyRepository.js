@@ -10,6 +10,15 @@ class StoryRepository {
       return e;
     }
   }
+
+  async findStory() {
+    try {
+      const stories = await Story.find();
+      return stories;
+    } catch (e) {
+      return e;
+    }
+  }
 }
 
 module.exports = { StoryRepository };
