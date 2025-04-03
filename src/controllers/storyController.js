@@ -21,7 +21,7 @@ module.exports.getAllStoriesController = async (req, res) => {
     return sendErrorResponse(res, e);
   }
 };
-module.exports.getStoryService = async (req, res) => {
+module.exports.getStoryController = async (req, res) => {
   try {
     const story = await storyService.getStoryService(req.params.storyId);
     return sendSuccessResponse(res, story);
