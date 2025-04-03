@@ -1,5 +1,6 @@
 const { StoryRepository } = require("../repositories/storyRepository");
 const { getImageAsBase64 } = require("../utils/imageConverter");
+const { storeUserForStory } = require("../utils/redisHelper");
 class StoryService {
   constructor() {
     this.storyRepository = new StoryRepository();
@@ -34,11 +35,6 @@ class StoryService {
       const storyData = await Promise.all(
         stories.map(async (story) => {
           story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
-          console.log(
-            "Before replacement:",
-            Array.isArray(story["versions"]),
-            story["versions"]
-          );
 
           if (
             Array.isArray(story["versions"]) &&
@@ -48,8 +44,6 @@ class StoryService {
               ...story["versions"][story["versions"].length - 1],
             };
           }
-
-          console.log("After replacement:", story["versions"]);
 
           if (story["versions"].coverImage) {
             try {
@@ -62,58 +56,46 @@ class StoryService {
               );
               story["versions"].coverImage = base64Image;
             } catch (err) {
-              console.error("Error retrieving image:", err);
               story["versions"].coverImage = false;
             }
           } else {
-            console.warn(`No cover image found for story ${story._id}.`);
             story["versions"].coverImage = false;
           }
 
           return story;
         })
       );
-
       return storyData;
     } catch (e) {
-      console.error("Error in getStoryService:", e);
       return e;
     }
   }
 
   async getStoryService(storyId) {
     try {
-      const stories = await this.storyRepository.findStoryById(storyId);
+      let story = await this.storyRepository.findStoryById(storyId);
+      console.log(story, "Story");
+      story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
 
-      const storyData = await Promise.all(
-        stories.map(async (story) => {
-          story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
-          if (
-            Array.isArray(story["versions"]) &&
-            story["versions"].length > 0
-          ) {
-            story["versions"] = {
-              ...story["versions"][story["versions"].length - 1],
-            };
-          }
-          if (story["versions"].coverImage) {
-            try {
-              const base64Image = await getImageAsBase64(
-                story["versions"].coverImage
-              );
-              story["versions"].coverImage = base64Image;
-            } catch (err) {
-              story["versions"].coverImage = false;
-            }
-          } else {
-            story["versions"].coverImage = false;
-          }
+      if (Array.isArray(story["versions"]) && story["versions"].length > 0) {
+        story["versions"] = {
+          ...story["versions"][story["versions"].length - 1],
+        };
+      }
+      if (story["versions"].coverImage) {
+        try {
+          const base64Image = await getImageAsBase64(
+            story["versions"].coverImage
+          );
+          story["versions"].coverImage = base64Image;
+        } catch (err) {
+          story["versions"].coverImage = false;
+        }
+      } else {
+        story["versions"].coverImage = false;
+      }
 
-          return story;
-        })
-      );
-
-      return storyData;
+      return story;
     } catch (e) {
       console.error("Error in getStoryService:", e);
       return e;
@@ -138,8 +120,14 @@ class StoryService {
     }
   }
 
-  async notifyUserService() {
-    //use redis
+  async notifyUserService(storyId, body) {
+    try {
+      const { userId } = body;
+      const response = await storeUserForStory(storyId, userId);
+      return response;
+    } catch (err) {
+      return err;
+    }
   }
 }
 module.exports = { StoryService };
