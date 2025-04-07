@@ -1,6 +1,13 @@
 const { StoryRepository } = require("../repositories/storyRepository");
 const { getImageAsBase64 } = require("../utils/imageConverter");
-const { storeUserForStory } = require("../utils/redisHelper");
+const { findById } = require("../repositories/userRepository");
+const {
+  storeUserForStory,
+  checkUserExits,
+  getWaitingUsers,
+  removeNotifiedUser,
+} = require("../utils/redisHelper");
+const { sendEmail } = require("../utils/email");
 class StoryService {
   constructor() {
     this.storyRepository = new StoryRepository();
@@ -120,10 +127,79 @@ class StoryService {
     }
   }
 
-  async notifyUserService(storyId, body) {
+  async subscribeNotificationsService(storyId, body) {
     try {
       const { userId } = body;
-      const response = await storeUserForStory(storyId, userId);
+      /** check if the user id is redis   */
+
+      const userExists = await checkUserExits(storyId, userId);
+      console.log("user exists", userExists);
+      if (!userExists) {
+        const response = await storeUserForStory(storyId, userId);
+        console.log("user created", response);
+        return response;
+      }
+      return true;
+    } catch (err) {
+      return err;
+    }
+  }
+
+  async sendNotificationsService(storyId, storyTitle) {
+    try {
+      /** check if the user id is redis   */
+      console.log("spublish notify");
+      const userId = await getWaitingUsers(storyId);
+      for (let ids of userId) {
+        console.log("user userId", userId);
+        /**using userid get the email id or store the email id in the redis */
+        const user_details = await findById(ids);
+        console.log("user details", user_details);
+        const notify_user = await sendEmail(
+          user_details.email,
+          storyTitle,
+          user_details.name
+        );
+        console.log(
+          "user EMAIL DETAILS",
+          user_details.email,
+          storyTitle,
+          user_details.name,
+          notify_user
+        );
+        if (notify_user) {
+          const response = await removeNotifiedUser(storyId, userId);
+          return response;
+        }
+      }
+
+      return true;
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
+  }
+
+  async unLockStory(storyId, body) {
+    try {
+      const { storyTitle, context } = body;
+      /**unlock story get from version from  */
+      await this.sendNotificationsService(storyId, storyTitle);
+      /**notify the users */
+      return true;
+    } catch (err) {
+      return err;
+    }
+  }
+
+  async lockStoryService(storyId, body) {
+    try {
+      let story = await this.storyRepository.findStoryById(storyId);
+      if (story.currentEditor) {
+        return false;
+      }
+      const { userId } = body;
+      const response = await this.storyRepository.lockStory(storyId, userId);
       return response;
     } catch (err) {
       return err;

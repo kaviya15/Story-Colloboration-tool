@@ -43,4 +43,28 @@ module.exports.likeStoryController = async (req, res) => {
   }
 };
 
-module.exports.notifyUsers = async (req, res) => {};
+module.exports.subscribeNotificationsController = async (req, res) => {
+  try {
+    console.log("notify story controller");
+    const notifyuser = await storyService.subscribeNotificationsService(
+      req.params.storyId,
+      req.body
+    );
+    return sendSuccessResponse(res, notifyuser);
+  } catch (e) {
+    return sendErrorResponse(res, e);
+  }
+};
+module.exports.lockStoryController = async (req, res) => {};
+module.exports.publishStoryController = async (req, res) => {
+  try {
+    console.log("publish story controller");
+    const notifyuser = await storyService.unLockStory(
+      req.params.storyId,
+      req.body
+    );
+    return sendSuccessResponse(res, notifyuser);
+  } catch (e) {
+    return sendErrorResponse(res, e);
+  }
+};

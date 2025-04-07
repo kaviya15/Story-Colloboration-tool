@@ -26,8 +26,9 @@ async function checkUserExits(storyId, userId) {
 
 // Remove a user from the waitlist (when notified)
 async function removeNotifiedUser(storyId, userId) {
+  console.log(`User ${storyId} removing ${userId}`);
   const notifiedUser = await client.SREM(`waitlist:story:${storyId}`, userId);
-  console.log(`User ${notifiedUser} has been notified for story ${storyId}`);
+  console.log(`User ${notifiedUser} has been removed for story ${storyId}`);
   return notifiedUser;
 }
 module.exports = {

@@ -60,6 +60,22 @@ class StoryRepository {
       return e;
     }
   }
+
+  async lockStory(storyId, userId) {
+    try {
+      const data = await Story.findByIdAndUpdate(
+        storyId,
+        {
+          $set: { currentEditor: userId }, // set the current editor
+        },
+        { new: true } // Return the updated story
+      );
+      console.log("data", data);
+      return data;
+    } catch (e) {
+      return e;
+    }
+  }
 }
 
 module.exports = { StoryRepository };

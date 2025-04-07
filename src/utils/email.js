@@ -10,12 +10,7 @@ module.exports.sendEmail = async (userEmail, storyTitle, userName) => {
     text: "Hey there user" + userName,
     html: `<strong>Wanna write some story ??? The story <em> ${storyTitle} </em> is available to edit now.  </strong>`,
   };
-  sgMail
-    .send(msg)
-    .then(() => {
-      return true;
-    })
-    .catch((error) => {
-      return false;
-    });
+  let response = await sgMail.send(msg);
+  console.log(" email Response", response);
+  return response;
 };
