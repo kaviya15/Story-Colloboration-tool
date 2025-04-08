@@ -6,11 +6,13 @@ const {
   getAllStoriesController,
   subscribeNotificationsController,
   publishStoryController,
+  uploadImageController,
 } = require("../controllers/storyController");
 
 const { uploadFileMiddleware } = require("../middleware/upload");
 /** need to add middleware to check session */
 router.post("/create", uploadFileMiddleware, createStoryController);
+router.post("/upload-image", uploadFileMiddleware, uploadImageController);
 router.post("/like/:storyId", likeStoryController);
 router.post("/notify/:storyId", subscribeNotificationsController);
 router.get("/:storyId", getStoryController);

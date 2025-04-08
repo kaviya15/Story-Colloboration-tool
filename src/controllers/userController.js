@@ -18,7 +18,8 @@ const registerUser = async (req, res) => {
     console.log(token);
 
     res.cookie("token", token, {
-      httpOnly: true,
+      // httpOnly: true,
+      SameSite: "None",
     });
 
     res.status(201).json(newUser);
@@ -36,7 +37,6 @@ const getUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 const loginUser = async (req, res) => {
   try {
     const existingUser = await userService.loginUser(req.body);
@@ -45,8 +45,12 @@ const loginUser = async (req, res) => {
     console.log(rest, "rest");
     if (existingUser) {
       res.cookie("token", token, {
-        httpOnly: true,
+        httpOnly: true, // Makes the cookie inaccessible to JavaScript
+        sameSite: "None", // Allow cross-origin cookies
+        secure: true, // Set to false for local dev (no HTTPS)
+        path: "/",
       });
+
       sendSuccessResponse(res, rest);
     }
   } catch (e) {

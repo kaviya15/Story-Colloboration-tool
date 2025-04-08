@@ -8,16 +8,20 @@ const routes = require("./src/routes");
 const { editFunction } = require("./src/sockets/socketConnection");
 const cors = require("cors");
 const app = express();
-app.use(cors({
-  origin: "http://localhost:3000",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true, 
-}));
+
+const corsOptions = {
+  origin: "http://localhost:3000", // Your frontend origin (adjust accordingly)
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+  credentials: true, // Allow credentials (cookies)
+};
+
+app.use(cors(corsOptions));
+
 const server = httpserver.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   },
 });

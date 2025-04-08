@@ -42,7 +42,8 @@ class StoryService {
       const storyData = await Promise.all(
         stories.map(async (story) => {
           story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
-
+          const user = await findById(story.createdBy);
+          story.owner = user.name;
           if (
             Array.isArray(story["versions"]) &&
             story["versions"].length > 0
@@ -68,7 +69,7 @@ class StoryService {
           } else {
             story["versions"].coverImage = false;
           }
-
+          story["image"] = story["versions"].coverImage;
           return story;
         })
       );
@@ -101,8 +102,8 @@ class StoryService {
       } else {
         story["versions"].coverImage = false;
       }
-
-      return story;
+      let { versions, ...rest } = story;
+      return rest;
     } catch (e) {
       console.error("Error in getStoryService:", e);
       return e;

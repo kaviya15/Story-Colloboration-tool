@@ -3,6 +3,7 @@ const {
   sendSuccessResponse,
   sendErrorResponse,
 } = require("./errorHandlerController");
+const { getImageAsBase64 } = require("../utils/imageConverter");
 const storyService = new StoryService();
 module.exports.createStoryController = async (req, res) => {
   try {
@@ -66,5 +67,18 @@ module.exports.publishStoryController = async (req, res) => {
     return sendSuccessResponse(res, notifyuser);
   } catch (e) {
     return sendErrorResponse(res, e);
+  }
+};
+
+module.exports.uploadImageController = async (req, res) => {
+  try {
+    const image = await getImageAsBase64(req.fileId);
+    const data = {
+      image,
+      fileId: req.fileId,
+    };
+    sendSuccessResponse(res, data);
+  } catch (err) {
+    sendErrorResponse(res, err);
   }
 };
