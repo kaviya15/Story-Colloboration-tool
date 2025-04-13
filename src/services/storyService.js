@@ -35,44 +35,56 @@ class StoryService {
     }
   }
 
+  async _getStoryDetails(story) {
+    story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
+    const user = await findById(story.createdBy);
+    story.owner = user.name;
+    if (Array.isArray(story["versions"]) && story["versions"].length > 0) {
+      story["versions"] = {
+        ...story["versions"][story["versions"].length - 1],
+      };
+    }
+
+    if (story["versions"].coverImage) {
+      try {
+        console.log("Fetching image for ID:", story["versions"].coverImage);
+        const base64Image = await getImageAsBase64(
+          story["versions"].coverImage
+        );
+        story["versions"].coverImage = base64Image;
+      } catch (err) {
+        story["versions"].coverImage = false;
+      }
+    } else {
+      story["versions"].coverImage = false;
+    }
+
+    story["contributors"] = await Promise.all(
+      story.allContributors.map(async (val) => {
+        const user = await findById(val);
+        return {
+          id: val,
+          name: user.name,
+          profilePic: "user.profilePic",
+        };
+      })
+    );
+
+    return story;
+  }
   async getAllStoryService() {
     try {
       const stories = await this.storyRepository.findStory();
 
       const storyData = await Promise.all(
         stories.map(async (story) => {
-          story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
-          const user = await findById(story.createdBy);
-          story.owner = user.name;
-          if (
-            Array.isArray(story["versions"]) &&
-            story["versions"].length > 0
-          ) {
-            story["versions"] = {
-              ...story["versions"][story["versions"].length - 1],
-            };
-          }
-
-          if (story["versions"].coverImage) {
-            try {
-              console.log(
-                "Fetching image for ID:",
-                story["versions"].coverImage
-              );
-              const base64Image = await getImageAsBase64(
-                story["versions"].coverImage
-              );
-              story["versions"].coverImage = base64Image;
-            } catch (err) {
-              story["versions"].coverImage = false;
-            }
-          } else {
-            story["versions"].coverImage = false;
-          }
+          story = await this._getStoryDetails(story);
           story["image"] = story["versions"].coverImage;
-          return story;
+          let { versions, ...rest } = story;
+          return rest;
         })
       );
+
       return storyData;
     } catch (e) {
       return e;
@@ -83,27 +95,8 @@ class StoryService {
     try {
       let story = await this.storyRepository.findStoryById(storyId);
       console.log(story, "Story");
-      story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
-
-      if (Array.isArray(story["versions"]) && story["versions"].length > 0) {
-        story["versions"] = {
-          ...story["versions"][story["versions"].length - 1],
-        };
-      }
-      if (story["versions"].coverImage) {
-        try {
-          const base64Image = await getImageAsBase64(
-            story["versions"].coverImage
-          );
-          story["versions"].coverImage = base64Image;
-        } catch (err) {
-          story["versions"].coverImage = false;
-        }
-      } else {
-        story["versions"].coverImage = false;
-      }
-      let { versions, ...rest } = story;
-      return rest;
+      story = await this._getStoryDetails(story);
+      return story;
     } catch (e) {
       console.error("Error in getStoryService:", e);
       return e;
