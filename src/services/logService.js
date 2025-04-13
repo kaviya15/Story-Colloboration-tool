@@ -1,5 +1,5 @@
 const { addLogs, getLogs } = require("../repositories/logRepository");
-
+const { getUserById } = require("../services/userService");
 module.exports.addLogsService = async function (body) {
   try {
     const data = {
@@ -14,8 +14,21 @@ module.exports.addLogsService = async function (body) {
 
 module.exports.getLogsService = async function (storyId) {
   try {
-    return await getLogs(storyId);
+    let logData = await getLogs(storyId);
+    logData = logData.logs.toObject();
+    console.log("logs", logData);
+
+    const resp = await Promise.all(
+      logData.map(async (value) => {
+        const response = await getUserById(value.user_id);
+        const logmessage = `${response.name} ${value.message} at ${value.timestamp}`;
+        console.log(`${response.name} ${value.message}`, value);
+        return { ...value, logmessage };
+      })
+    );
+    return resp;
   } catch (err) {
-    return err;
+    console.log(err, "error");
+    throw err;
   }
 };

@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 const logSchema = require("../models/logModel");
-
+const { getUserById } = require("../services/userService");
 module.exports.getLogs = async function (storyId) {
   try {
-    const logs = await logSchema.findOne({
+    let logData = await logSchema.findOne({
       storyId: new mongoose.Types.ObjectId(String(storyId)),
     });
-    console.log("logs", logs);
-    return logs;
+    console.log(logData, "log");
+    return logData;
   } catch (err) {
     return err;
   }

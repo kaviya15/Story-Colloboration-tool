@@ -18,6 +18,7 @@ module.exports.getLogsController = async function (req, res) {
     const data = await getLogsService(req.query.storyId);
     return sendSuccessResponse(res, data);
   } catch (err) {
+    console.log("error", err);
     return sendErrorResponse(res, err);
   }
 };
