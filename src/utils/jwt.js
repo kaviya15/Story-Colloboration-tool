@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const User =  require("../models/userModel");
 
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -9,9 +10,17 @@ const generateToken = (userId) => {
 };
 
 
-const verifyToken = (token) => {
+const verifyToken = async (token) => {
   try {
-    return jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findOne({ email: decoded.userId });
+    if (!user) return null;
+
+    return {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    };
   } catch (error) {
     return null; 
   }

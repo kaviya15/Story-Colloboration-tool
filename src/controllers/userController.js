@@ -1,9 +1,10 @@
 const userService = require("../services/userService");
-const { generateToken } = require("../utils/jwt");
+const { generateToken, verifyToken } = require("../utils/jwt");
 const {
   sendSuccessResponse,
   sendErrorResponse,
 } = require("./errorHandlerController");
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -15,10 +16,8 @@ const registerUser = async (req, res) => {
 
     const token = generateToken(newUser._id);
 
-    console.log(token);
-
     res.cookie("token", token, {
-      // httpOnly: true,
+      httpOnly: true,
       SameSite: "None",
     });
 
@@ -40,9 +39,7 @@ const getUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const existingUser = await userService.loginUser(req.body);
-    console.log("controller", existingUser);
     const { token, ...rest } = existingUser;
-    console.log(rest, "rest");
     if (existingUser) {
       res.cookie("token", token, {
         httpOnly: true, // Makes the cookie inaccessible to JavaScript
@@ -59,7 +56,6 @@ const loginUser = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  console.log(req.cookies);
   try {
     if (req.cookies.token) {
       res.clearCookie("token", {
@@ -72,4 +68,19 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, getUser, loginUser, logout };
+const authentication = async (req, res) => {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ message: 'Unauthorized' });
+
+  try {
+    const user = await verifyToken(token, process.env.JWT_SECRET);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.json({ user });
+  } catch (err) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+}
+
+module.exports = { registerUser, getUser, loginUser, logout, authentication};
