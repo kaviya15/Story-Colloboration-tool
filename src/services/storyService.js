@@ -209,13 +209,26 @@ class StoryService {
   async saveEditedVersion(storyId, fileId, body) {
     try {
       let { content, userId, tags, title } = body;
-      const story = {
+      let story = {
         content: content,
         coverImage: fileId,
         lastEditor: userId,
         tags,
         title,
       };
+      console.log(fileId);
+      if (fileId == undefined) {
+        //get the latest story version object id
+        const storyData = await this.storyRepository.findStoryById(storyId);
+        console.log(
+          "no image",
+          storyData.versions[storyData.versions.length - 1]
+        );
+        if (storyData.versions[storyData.versions.length - 1].coverImage)
+          story["coverImage"] =
+            storyData.versions[storyData.versions.length - 1].coverImage;
+      }
+
       const response = await this.storyRepository.saveEditedVersion(
         storyId,
         story,
