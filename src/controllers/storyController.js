@@ -56,11 +56,40 @@ module.exports.subscribeNotificationsController = async (req, res) => {
     return sendErrorResponse(res, e);
   }
 };
-module.exports.lockStoryController = async (req, res) => {};
+module.exports.editStoryController = async (req, res) => {
+  try {
+    console.log("edit story controller");
+    const edit = await storyService.lockStoryService(
+      req.params.storyId,
+      req.body
+    );
+    return sendSuccessResponse(res, edit);
+  } catch (e) {
+    return sendErrorResponse(res, e);
+  }
+};
 module.exports.publishStoryController = async (req, res) => {
   try {
     console.log("publish story controller");
-    const notifyuser = await storyService.unLockStory(
+    const notifyuser = await storyService.unLockStoryService(
+      req.params.storyId,
+      req.body
+    );
+
+    const saveStory = await storyService.saveEditedVersion(
+      req.params.storyId,
+      req.fileId,
+      req.body
+    );
+    return sendSuccessResponse(res, notifyuser);
+  } catch (e) {
+    return sendErrorResponse(res, e);
+  }
+};
+module.exports.discardStoryController = async (req, res) => {
+  try {
+    console.log("discard story controller");
+    const notifyuser = await storyService.unLockStoryService(
       req.params.storyId,
       req.body
     );
