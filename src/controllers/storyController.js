@@ -71,17 +71,13 @@ module.exports.editStoryController = async (req, res) => {
 module.exports.publishStoryController = async (req, res) => {
   try {
     console.log("publish story controller");
-    const notifyuser = await storyService.unLockStoryService(
-      req.params.storyId,
-      req.body
-    );
-
     const saveStory = await storyService.saveEditedVersion(
       req.params.storyId,
       req.fileId,
       req.body
     );
-    return sendSuccessResponse(res, notifyuser);
+    console.log("publish story controller", saveStory);
+    return sendSuccessResponse(res, saveStory);
   } catch (e) {
     return sendErrorResponse(res, e);
   }

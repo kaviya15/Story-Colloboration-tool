@@ -37,9 +37,10 @@ class StoryService {
   }
 
   async _getStoryDetails(story) {
-    console.log("story", story);
+    // console.log("story", story);
     story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
     const user = await findById(story.createdBy);
+    console.log(user, "user", story.createdBy);
     story.owner = user.name;
 
     if (Array.isArray(story["versions"]) && story["versions"].length > 0) {
@@ -128,6 +129,7 @@ class StoryService {
 
   async subscribeNotificationsService(storyId, body) {
     try {
+      console.log("storyid", storyId);
       const { userId } = body;
       /** check if the user id is redis   */
 
@@ -149,6 +151,7 @@ class StoryService {
       /** check if the user id is redis   */
       console.log("spublish notify");
       const userId = await getWaitingUsers(storyId);
+      console.log("redis userids", userId);
       for (let ids of userId) {
         console.log("user userId", userId);
         /**using userid get the email id or store the email id in the redis */
@@ -168,7 +171,6 @@ class StoryService {
         );
         if (notify_user) {
           const response = await removeNotifiedUser(storyId, userId);
-          return response;
         }
       }
 
@@ -179,9 +181,9 @@ class StoryService {
     }
   }
 
-  async unLockStoryService(storyId, body) {
+  async unLockStoryService(storyId, storyTitle) {
     try {
-      const { storyTitle, context } = body;
+      // const { storyTitle, context } = body;
       /**unlock story get from version from  */
       const response = await this.storyRepository.unLockStory(storyId);
 
@@ -196,20 +198,22 @@ class StoryService {
   async lockStoryService(storyId, body) {
     try {
       let story = await this.storyRepository.findStoryById(storyId);
-      if (story.currentEditor) {
-        throw "story is locked for editing";
-      }
+
       const { userId } = body;
+      if (story.currentEditor && story.currentEditor != userId) {
+        throw new Error(story.currentEditor);
+      }
       const response = await this.storyRepository.lockStory(storyId, userId);
       return response;
     } catch (err) {
-      return err;
+      throw err;
     }
   }
 
   async saveEditedVersion(storyId, fileId, body) {
     try {
       let { content, userId, tags, title } = body;
+      await this.unLockStoryService(storyId, title);
       let story = {
         content: content,
         coverImage: fileId,

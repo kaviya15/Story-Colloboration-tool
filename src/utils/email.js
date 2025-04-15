@@ -1,7 +1,7 @@
 // our emailing functions goes here
 const sgMail = require("@sendgrid/mail");
 
-module.exports.sendEmail = async (userEmail, storyTitle, userName) => {
+const sendEmail = async (userEmail, storyTitle, userName) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
     to: userEmail, // Change to your recipient
@@ -14,3 +14,5 @@ module.exports.sendEmail = async (userEmail, storyTitle, userName) => {
   console.log(" email Response", response);
   return response;
 };
+// sendEmail("zlx20010815@gmail.com", "", "abe");
+module.exports = { sendEmail };
