@@ -241,6 +241,27 @@ class StoryService {
     }
   }
 
+  async getPaginatedStories(pageParam, limitParam) {
+    try {
+      const page = parseInt(pageParam);
+      const limit = parseInt(limitParam);
+      const skip = (page - 1) * limit;
+      const stories = await this.storyRepository.findStoriesByCount(
+        skip,
+        limit
+      );
+      const total = await this.storyRepository.findStoryCount();
+      return {
+        page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        data: stories,
+      };
+    } catch (err) {
+      return { error: err.message || "Error in pagination", statusCode: 500 };
+    }
+  }
+
   async findByIdAndDelete(storyId) {
     try {
       const deleted = await this.storyRepository.findByIdAndDelete(storyId);

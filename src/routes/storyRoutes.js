@@ -10,6 +10,7 @@ const {
   editStoryController,
   discardStoryController,
   getUserStoriesController,
+  getPaginatedStoriesController,
   deleteStoryController,
 } = require("../controllers/storyController");
 
@@ -22,6 +23,7 @@ router.post("/edit/:storyId", editStoryController);
 router.put("/publish/:storyId", uploadFileMiddleware, publishStoryController);
 router.put("/discard/:storyId", discardStoryController);
 router.get("/created/:id", getUserStoriesController);
+router.get("/userstories/stories", getPaginatedStoriesController);
 router.delete("/:storyId", deleteStoryController);
 
 router.get("/:storyId", getStoryController);

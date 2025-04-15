@@ -19,6 +19,28 @@ class StoryRepository {
       return e;
     }
   }
+
+  async findStoriesByCount(skip, limit) {
+    try {
+      const stories = await Story.find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+      return stories;
+    } catch (e) {
+      return e;
+    }
+  }
+
+  async findStoryCount() {
+    try {
+      const total = await Story.countDocuments();
+      return total;
+    } catch (e) {
+      return e;
+    }
+  }
+
   async findStoryById(storyId) {
     try {
       const story = await Story.findById(storyId);
@@ -135,7 +157,7 @@ class StoryRepository {
     }
   }
 
-  async  findStoriesByUserId(userId) {
+  async findStoriesByUserId(userId) {
     return await Story.find({ createdBy: userId });
   }
 }

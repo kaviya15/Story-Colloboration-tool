@@ -121,6 +121,16 @@ module.exports.getUserStoriesController = async (req, res) => {
   }
 };
 
+module.exports.getPaginatedStoriesController = async (req, res) => {
+  try {
+    const { page, limit } = req.query;
+    const stories = await storyService.getPaginatedStories(page, limit);
+    return sendSuccessResponse(res, stories);
+  } catch (e) {
+    return sendErrorResponse(res, e);
+  }
+};
+
 module.exports.deleteStoryController = async (req, res) => {
   try {
     const result = await storyService.findByIdAndDelete(req.params.storyId);
