@@ -9,6 +9,9 @@ const {
   uploadImageController,
   editStoryController,
   discardStoryController,
+  getUserStoriesController,
+  getPaginatedStoriesController,
+  deleteStoryController,
 } = require("../controllers/storyController");
 
 const { uploadFileMiddleware } = require("../middleware/upload");
@@ -19,6 +22,9 @@ router.post("/notify/:storyId", subscribeNotificationsController);
 router.post("/lock/:storyId", editStoryController);
 router.put("/publish/:storyId", uploadFileMiddleware, publishStoryController);
 router.put("/discard/:storyId", discardStoryController);
+router.get("/created/:id", getUserStoriesController);
+router.get("/userstories/stories", getPaginatedStoriesController);
+router.delete("/:storyId", deleteStoryController);
 
 router.get("/:storyId", getStoryController);
 router.get("/", getAllStoriesController);

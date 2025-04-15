@@ -3,6 +3,7 @@ const {
   registerUser,
   loginUser,
   getUser,
+  getUserProfile,
   logout,
   authentication,
 } = require("../controllers/userController");
@@ -15,6 +16,7 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logout);
 router.get("/:id", getUser);
+router.get("/profile/:id", getUserProfile);
 
 // GET request to fetch user details by ID
 // router.get("/:id", getUser);

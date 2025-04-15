@@ -107,3 +107,31 @@ module.exports.uploadImageController = async (req, res) => {
     sendErrorResponse(res, err);
   }
 };
+
+module.exports.getUserStoriesController = async (req, res) => {
+  try {
+    const result = await storyService.findByUserId(req.params.id);
+    sendSuccessResponse(res, result);
+  } catch (err) {
+    sendErrorResponse(res, err);
+  }
+};
+
+module.exports.getPaginatedStoriesController = async (req, res) => {
+  try {
+    const { page, limit } = req.query;
+    const stories = await storyService.getPaginatedStories(page, limit);
+    return sendSuccessResponse(res, stories);
+  } catch (e) {
+    return sendErrorResponse(res, e);
+  }
+};
+
+module.exports.deleteStoryController = async (req, res) => {
+  try {
+    const result = await storyService.findByIdAndDelete(req.params.storyId);
+    sendSuccessResponse(res, result);
+  } catch (err) {
+    sendErrorResponse(res, err);
+  }
+};

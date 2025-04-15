@@ -1,6 +1,7 @@
 const { StoryRepository } = require("../repositories/storyRepository");
 const { getImageAsBase64 } = require("../utils/imageConverter");
 const { findById } = require("../repositories/userRepository");
+const { deleteLogs } = require("../repositories/logRepository");
 const {
   storeUserForStory,
   checkUserExits,
@@ -243,5 +244,65 @@ class StoryService {
       return err;
     }
   }
+
+  async getPaginatedStories(pageParam, limitParam) {
+    try {
+      const page = parseInt(pageParam);
+      const limit = parseInt(limitParam);
+      const skip = (page - 1) * limit;
+      const stories = await this.storyRepository.findStoriesByCount(
+        skip,
+        limit
+      );
+      const total = await this.storyRepository.findStoryCount();
+      return {
+        page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        data: stories,
+      };
+    } catch (err) {
+      return { error: err.message || "Error in pagination", statusCode: 500 };
+    }
+  }
+
+  async findByIdAndDelete(storyId) {
+    try {
+      const deleted = await this.storyRepository.findByIdAndDelete(storyId);
+      const deletedLogs = await deleteLogs(storyId);
+      if (!deleted && deletedLogs) {
+        throw new Error("No logs found for the story");
+      }
+      return {
+        message: "Story deleted successfully",
+        story: deleted,
+      };
+    } catch (err) {
+      return { error: err.message || "Error deleting story", statusCode: 500 };
+    }
+  }
+
+  async findByUserId(userId) {
+    try {
+      const stories = await this.storyRepository.findStoriesByUserId(userId);
+      if (!stories || stories.length === 0) {
+        return { error: "No stories found for this user", statusCode: 404 };
+      }
+      const storyData = await Promise.all(
+        stories.map(async (story) => {
+          story = await this._getStoryDetails(story);
+          story["image"] = story["versions"].coverImage;
+          story["versions"].content = "";
+          story["versions"].coverImage = "";
+          let { versions, content, coverImage, ...rest } = story["versions"];
+          return story;
+        })
+      );
+      return storyData;
+    } catch (err) {
+      return { error: err.message || "Error fetching story", statusCode: 500 };
+    }
+  }
 }
+
 module.exports = { StoryService };
