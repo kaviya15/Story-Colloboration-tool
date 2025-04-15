@@ -16,7 +16,7 @@ const { uploadFileMiddleware } = require("../middleware/upload");
 router.post("/create", uploadFileMiddleware, createStoryController);
 router.post("/like/:storyId", likeStoryController);
 router.post("/notify/:storyId", subscribeNotificationsController);
-router.post("/edit/:storyId", editStoryController);
+router.post("/lock/:storyId", editStoryController);
 router.put("/publish/:storyId", uploadFileMiddleware, publishStoryController);
 router.put("/discard/:storyId", discardStoryController);
 

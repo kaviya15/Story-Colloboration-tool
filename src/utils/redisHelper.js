@@ -15,6 +15,7 @@ async function storeUserForStory(storyId, userId) {
 }
 // Get all users in the waitlist for a story
 async function getWaitingUsers(storyId) {
+  console.log(storyId, "redis file");
   return await client.SMEMBERS(`waitlist:story:${storyId}`);
 }
 
