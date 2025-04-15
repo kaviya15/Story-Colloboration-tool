@@ -24,7 +24,8 @@ const uploadFileMiddleware = async (req, res, next) => {
 
   // Step 2: Ensure files are present
   if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ error: "Noo file uploaded" });
+    // return res.status(400).json({ error: "Noo file uploaded" });
+    return next();
   }
 
   // Step 3: Initialize GridFS

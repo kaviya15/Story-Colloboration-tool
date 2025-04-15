@@ -5,11 +5,13 @@ const {
   getUser,
   getUserProfile,
   logout,
+  authentication,
 } = require("../controllers/userController");
 
 const router = express.Router();
 
 // POST request to create a new user
+router.get("/auth", authentication);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logout);
