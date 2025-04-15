@@ -58,6 +58,15 @@ const loginUser = async (req, res) => {
   }
 };
 
+const getUserProfile = async (req, res) => {
+  try {
+    const userProfile = await userService.getUserProfile(req.params.id);
+    res.json(userProfile);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const logout = async (req, res) => {
   console.log(req.cookies);
   try {
@@ -72,4 +81,4 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, getUser, loginUser, logout };
+module.exports = { registerUser, getUser, loginUser,getUserProfile, logout };

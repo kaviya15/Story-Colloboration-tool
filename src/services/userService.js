@@ -33,6 +33,26 @@ const loginUser = async (body) => {
   }
 };
 
+const getUserProfile = async (body) => {
+  try {
+    const userId = req.params.id;
+    const user = await userRepository.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    const totalStoriesWritten = await Story.countDocuments({ author: user });
+    const totalContributions = await Story.countDocuments({ contributors: user});
+    
+    const profile = {
+      name: user.name,
+      profilePic: user.profilePic,
+      totalStoriesWritten,
+      totalContributions,
+    };
+    return {profile};
+  } catch (err) {
+    throw new Error(err + " issue in login service layer");
+  }
+};
+
 const getUserById = async (userId) => userRepository.findById(userId);
 
-module.exports = { registerUser, getUserById, loginUser };
+module.exports = { registerUser, getUserById,getUserProfile, loginUser };

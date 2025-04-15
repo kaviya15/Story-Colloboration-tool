@@ -7,6 +7,7 @@ const {
   subscribeNotificationsController,
   publishStoryController,
   uploadImageController,
+  deleteStoryController,
 } = require("../controllers/storyController");
 
 const { uploadFileMiddleware } = require("../middleware/upload");
@@ -17,6 +18,8 @@ router.post("/like/:storyId", likeStoryController);
 router.post("/notify/:storyId", subscribeNotificationsController);
 router.get("/:storyId", getStoryController);
 router.put("/publish/:storyId", publishStoryController);
+
+router.delete("/:storyId", deleteStoryController);
 
 router.get("/", getAllStoriesController);
 // router.post("/lock/:storyId")
