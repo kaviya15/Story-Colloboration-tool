@@ -30,3 +30,12 @@ module.exports.addLogs = async function addLogs(logData) {
     return err;
   }
 };
+
+module.exports.deleteLogs = async function deleteLogs(storyId) {
+  try {
+    const deletedLogs = await Log.deleteMany(storyId);
+    return deletedLogs;
+  } catch (e) {
+    throw e;
+  }
+};

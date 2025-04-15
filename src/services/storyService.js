@@ -1,6 +1,7 @@
 const { StoryRepository } = require("../repositories/storyRepository");
 const { getImageAsBase64 } = require("../utils/imageConverter");
 const { findById } = require("../repositories/userRepository");
+const { deleteLogs } = require("../repositories/logRepository");
 const {
   storeUserForStory,
   checkUserExits,
@@ -243,19 +244,19 @@ class StoryService {
   async findByIdAndDelete(storyId) {
     try {
       const deleted = await this.storyRepository.findByIdAndDelete(storyId);
-  
-      if (!deleted) {
-            return sendErrorResponse(res, 'Story not found', 404);
-          }
-          return {
-            message: 'Story deleted successfully',
-            story: deleted,
-          };
+      const deletedLogs = await this.logRepository.deleteLogs(storyId);
+
+      if (!deleted && deletedLogs) {
+        return sendErrorResponse(res, "Story not found", 404);
+      }
+      return {
+        message: "Story deleted successfully",
+        story: deleted,
+      };
     } catch (err) {
-      return { error: err.message || 'Error deleting story', statusCode: 500 };
+      return { error: err.message || "Error deleting story", statusCode: 500 };
     }
   }
 }
-
 
 module.exports = { StoryService };
