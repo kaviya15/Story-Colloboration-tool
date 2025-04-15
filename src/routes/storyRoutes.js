@@ -20,6 +20,7 @@ router.post("/notify/:storyId", subscribeNotificationsController);
 router.post("/edit/:storyId", editStoryController);
 router.put("/publish/:storyId", uploadFileMiddleware, publishStoryController);
 router.put("/discard/:storyId", discardStoryController);
+router.delete("/:storyId", deleteStoryController);
 
 router.get("/:storyId", getStoryController);
 router.get("/", getAllStoriesController);

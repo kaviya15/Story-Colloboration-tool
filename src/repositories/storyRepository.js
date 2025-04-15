@@ -126,6 +126,16 @@ class StoryRepository {
       throw e;
     }
   }
+  async findByIdAndDelete(storyId) {
+    try {
+      const deletedStory = await Story.findByIdAndDelete(storyId);
+      console.log('Deleted story:', deletedStory);
+      return deletedStory;
+    } catch (e) {
+      throw e;
+    }
+  }
+
 }
 
 module.exports = { StoryRepository };

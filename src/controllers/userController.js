@@ -57,7 +57,10 @@ const loginUser = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
-    const userProfile = await userService.getUserProfile(req.params.id);
+    const userProfile = await userService.getUserProfile(req.params.id); 
+    if (userProfile.error) {
+      return res.status(result.statusCode || 500).json({ message: userProfile.error });
+    }
     res.json(userProfile);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -77,7 +80,6 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, getUser, loginUser,getUserProfile, logout };
 const authentication = async (req, res) => {
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ message: 'Unauthorized' });
@@ -93,4 +95,4 @@ const authentication = async (req, res) => {
   }
 }
 
-module.exports = { registerUser, getUser, loginUser, logout, authentication};
+module.exports = { registerUser, getUser, loginUser,getUserProfile, logout, authentication};

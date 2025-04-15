@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");
 const userRepository = require("../repositories/userRepository");
 const { generateToken } = require("../utils/jwt");
+const User = require("../models/userModel");
+const Story = require("../models/storyModel");
 
 const registerUser = async (name, email, password) => {
   const existingUser = await userRepository.findByEmail(email);
@@ -32,23 +34,21 @@ const loginUser = async (body) => {
   }
 };
 
-const getUserProfile = async (body) => {
+const getUserProfile = async (userId) => {
   try {
-    const userId = req.params.id;
-    const user = await userRepository.findById(userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    const totalStoriesWritten = await Story.countDocuments({ author: user });
-    const totalContributions = await Story.countDocuments({ contributors: user});
-    
-    const profile = {
+    const user = await User.findById(userId);
+    if (!user) return { error: 'User not found', statusCode: 404 };
+    const totalStoriesWritten = await Story.countDocuments({ createdBy: userId });
+    const totalContributions = await Story.countDocuments({ contributors: userId});
+    return {
       name: user.name,
       profilePic: user.profilePic,
       totalStoriesWritten,
       totalContributions,
     };
-    return {profile};
   } catch (err) {
-    throw new Error(err + " issue in login service layer");
+    console.log(err)
+    throw new Error(err + " issue in user service layer");
   }
 };
 

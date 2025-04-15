@@ -114,16 +114,11 @@ module.exports.uploadImageController = async (req, res) => {
 
 
 module.exports.deleteStoryController = async (req, res) => {
-  try {
-    const deleted = await storyService.findByIdAndDelete(req.params.storyId);
-    if (!deleted) {
-      return sendErrorResponse(res, 'Story not found', 404);
-    }
-    sendSuccessResponse(res, {
-      message: 'Story deleted successfully',
-      story: deleted,
-    });
-  } catch (error) {
-    sendErrorResponse(res, error.message || 'Error deleting story', 500);
+  const result = await storyService.findByIdAndDelete(req.params.storyId);
+
+  if (result.error) {
+    return sendErrorResponse(res, result.error, result.statusCode || 500);
   }
+
+  sendSuccessResponse(res, result); 
 };

@@ -239,5 +239,23 @@ class StoryService {
       return err;
     }
   }
+
+  async findByIdAndDelete(storyId) {
+    try {
+      const deleted = await this.storyRepository.findByIdAndDelete(storyId);
+  
+      if (!deleted) {
+            return sendErrorResponse(res, 'Story not found', 404);
+          }
+          return {
+            message: 'Story deleted successfully',
+            story: deleted,
+          };
+    } catch (err) {
+      return { error: err.message || 'Error deleting story', statusCode: 500 };
+    }
+  }
 }
+
+
 module.exports = { StoryService };
