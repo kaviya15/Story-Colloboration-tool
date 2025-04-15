@@ -244,10 +244,9 @@ class StoryService {
   async findByIdAndDelete(storyId) {
     try {
       const deleted = await this.storyRepository.findByIdAndDelete(storyId);
-      const deletedLogs = await this.logRepository.deleteLogs(storyId);
-
+      const deletedLogs = await deleteLogs(storyId);
       if (!deleted && deletedLogs) {
-        return sendErrorResponse(res, "Story not found", 404);
+        throw new Error("No logs found for the story");
       }
       return {
         message: "Story deleted successfully",
@@ -255,6 +254,28 @@ class StoryService {
       };
     } catch (err) {
       return { error: err.message || "Error deleting story", statusCode: 500 };
+    }
+  }
+
+  async findByUserId(userId) {
+    try {
+      const stories = await this.storyRepository.findStoriesByUserId(userId);
+      if (!stories || stories.length === 0) {
+        return { error: "No stories found for this user", statusCode: 404 };
+      }
+      const storyData = await Promise.all(
+        stories.map(async (story) => {
+          story = await this._getStoryDetails(story);
+          story["image"] = story["versions"].coverImage;
+          story["versions"].content = "";
+          story["versions"].coverImage = "";
+          let { versions, content, coverImage, ...rest } = story["versions"];
+          return story;
+        })
+      );
+      return storyData;
+    } catch (err) {
+      return { error: err.message || "Error fetching story", statusCode: 500 };
     }
   }
 }

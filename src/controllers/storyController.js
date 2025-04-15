@@ -112,13 +112,20 @@ module.exports.uploadImageController = async (req, res) => {
   }
 };
 
+module.exports.getUserStoriesController = async (req, res) => {
+  try {
+    const result = await storyService.findByUserId(req.params.id);
+    sendSuccessResponse(res, result);
+  } catch (err) {
+    sendErrorResponse(res, err);
+  }
+};
 
 module.exports.deleteStoryController = async (req, res) => {
-  const result = await storyService.findByIdAndDelete(req.params.storyId);
-
-  if (result.error) {
-    return sendErrorResponse(res, result.error, result.statusCode || 500);
+  try {
+    const result = await storyService.findByIdAndDelete(req.params.storyId);
+    sendSuccessResponse(res, result);
+  } catch (err) {
+    sendErrorResponse(res, err);
   }
-
-  sendSuccessResponse(res, result); 
 };

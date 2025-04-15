@@ -6,7 +6,7 @@ const sendSuccessResponse = async (res, data) => {
 
 const sendErrorResponse = async (res, err) => {
   return res.status(400).send({
-    err,
+    err: err.message,
   });
 };
 
