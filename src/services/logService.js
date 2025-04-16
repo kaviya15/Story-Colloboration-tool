@@ -22,10 +22,12 @@ module.exports.getLogsService = async function (storyId) {
     const resp = await Promise.all(
       logData.map(async (value) => {
         const response = await getUserById(value.user_id);
-        const logmessage = `${response.name} ${value.message} at ${formatDate(
-          value.timestamp
-        )}`;
-        console.log(`${response.name} ${value.message}`, value);
+        let logmessage = null;
+        if (response) {
+          logmessage = `${response?.name} ${value.message} at ${formatDate(
+            value.timestamp
+          )}`;
+        }
         return { ...value, logmessage };
       })
     );
