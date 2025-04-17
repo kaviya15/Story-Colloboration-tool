@@ -21,8 +21,6 @@ Plotline is a full-stack web application that enables users to collaboratively c
 
 ---
 
-### 🔧 1. Clone the Repository
-
 ```bash
 npm install
 npm run dev     # Runs using nodemon (for development)
