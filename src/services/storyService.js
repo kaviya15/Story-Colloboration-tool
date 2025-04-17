@@ -212,23 +212,18 @@ class StoryService {
 
   async saveEditedVersion(storyId, fileId, body) {
     try {
-      let { content, userId, tags, title } = body;
+      let { content, userID, tags, title } = body;
       await this.unLockStoryService(storyId, title);
       let story = {
         content: content,
         coverImage: fileId,
-        lastEditor: userId,
+        lastEditor: userID,
         tags,
         title,
       };
-      console.log(fileId);
       if (fileId == undefined) {
         //get the latest story version object id
         const storyData = await this.storyRepository.findStoryById(storyId);
-        console.log(
-          "no image",
-          storyData.versions[storyData.versions.length - 1]
-        );
         if (storyData.versions[storyData.versions.length - 1].coverImage)
           story["coverImage"] =
             storyData.versions[storyData.versions.length - 1].coverImage;
@@ -237,7 +232,7 @@ class StoryService {
       const response = await this.storyRepository.saveEditedVersion(
         storyId,
         story,
-        userId
+        userID
       );
       return response;
     } catch (err) {

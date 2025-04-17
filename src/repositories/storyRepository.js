@@ -131,17 +131,16 @@ class StoryRepository {
     }
   }
 
-  async saveEditedVersion(storyId, story, userId) {
+  async saveEditedVersion(storyId, story, userID) {
     try {
       const data = await Story.findByIdAndUpdate(
         storyId,
         {
           $push: { versions: story },
-          $addToSet: { allContributors: userId },
+          $addToSet: { allContributors: userID },
         },
         { new: true } // Return the updated story
       );
-      console.log("edited version", data);
       const freshStory = await Story.findById(storyId);
       return data;
     } catch (e) {
