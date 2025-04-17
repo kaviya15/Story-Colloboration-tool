@@ -17,6 +17,7 @@ module.exports.getLogsService = async function (storyId) {
   try {
     let logData = await getLogs(storyId);
     logData = logData.logs.toObject();
+    logData = logData.slice(0, 20);
     console.log("logs", logData);
 
     const resp = await Promise.all(
