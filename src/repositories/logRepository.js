@@ -6,7 +6,7 @@ module.exports.getLogs = async function (storyId) {
     let logData = await logSchema.findOne({
       storyId: new mongoose.Types.ObjectId(String(storyId)),
     });
-    console.log(logData, "log");
+    // console.log(logData, "log");
     return logData;
   } catch (err) {
     return err;

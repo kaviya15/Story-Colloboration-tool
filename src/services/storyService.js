@@ -14,7 +14,7 @@ class StoryService {
     this.storyRepository = new StoryRepository();
   }
   async createStoryService(fileId, body) {
-    console.log(body, "body");
+    // console.log(body, "body");
     try {
       const storyData = {
         versions: [
@@ -40,7 +40,7 @@ class StoryService {
     // console.log("story", story);
     story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
     const user = await findById(story.createdBy);
-    console.log(user, "user", story.createdBy);
+    // console.log(user, "user", story.createdBy);
     story.owner = user.name;
 
     if (Array.isArray(story["versions"]) && story["versions"].length > 0) {
@@ -51,7 +51,7 @@ class StoryService {
 
     if (story["versions"].coverImage) {
       try {
-        console.log("Fetching image for ID:", story["versions"].coverImage);
+        // console.log("Fetching image for ID:", story["versions"].coverImage);
         const base64Image = await getImageAsBase64(
           story["versions"].coverImage
         );
@@ -100,7 +100,7 @@ class StoryService {
   async getStoryService(storyId) {
     try {
       let story = await this.storyRepository.findStoryById(storyId);
-      console.log(story, "Story");
+      // console.log(story, "Story");
       story = await this._getStoryDetails(story);
       return story;
     } catch (e) {
@@ -221,14 +221,14 @@ class StoryService {
         tags,
         title,
       };
-      console.log(fileId);
+      // console.log(fileId);
       if (fileId == undefined) {
         //get the latest story version object id
         const storyData = await this.storyRepository.findStoryById(storyId);
-        console.log(
-          "no image",
-          storyData.versions[storyData.versions.length - 1]
-        );
+        // console.log(
+        //   "no image",
+        //   storyData.versions[storyData.versions.length - 1]
+        // );
         if (storyData.versions[storyData.versions.length - 1].coverImage)
           story["coverImage"] =
             storyData.versions[storyData.versions.length - 1].coverImage;

@@ -8,7 +8,7 @@ const storyService = new StoryService();
 module.exports.createStoryController = async (req, res) => {
   try {
     const data = await storyService.createStoryService(req.fileId, req.body);
-    console.log(req.body, "req.body");
+    // console.log(req.body, "req.body");
     return sendSuccessResponse(res, data);
   } catch (e) {
     return sendErrorResponse(res, e);
