@@ -17,7 +17,7 @@ Plotline is a full-stack web application that enables users to collaboratively c
 # to run
 ## 🚀 How to Run the Project Locally
 
-> Ensure you have **Node.js**, **npm**, and **Redis** installed before proceeding.
+> Ensure you have **Node.js**, **npm**,**Docker** and **Redis** installed before proceeding.
 
 ---
 
