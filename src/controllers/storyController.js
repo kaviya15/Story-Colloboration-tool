@@ -135,3 +135,24 @@ module.exports.deleteStoryController = async (req, res) => {
     sendErrorResponse(res, err);
   }
 };
+
+module.exports.versionStoryController = async (req, res) => {
+  try {
+    const result = await storyService.versionStory(req.params.storyId);
+    sendSuccessResponse(res, result);
+  } catch (err) {
+    sendErrorResponse(res, err);
+  }
+};
+
+module.exports.versionSpecificStoryController = async (req, res) => {
+  const result = await storyService.versionStory(
+    req.params.storyId,
+    req.body.v_id
+  );
+  sendSuccessResponse(res, result);
+  try {
+  } catch (err) {
+    sendErrorResponse(res, err);
+  }
+};

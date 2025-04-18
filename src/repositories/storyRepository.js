@@ -159,6 +159,18 @@ class StoryRepository {
   async findStoriesByUserId(userId) {
     return await Story.find({ createdBy: userId });
   }
+
+  async findStoriesByversionId(version_id) {
+    try {
+      const version = await Story.findOne(
+        { "versions._id": version_id },
+        { versions: { $elemMatch: { _id: version_id } } }
+      );
+      return version;
+    } catch (e) {
+      throw e;
+    }
+  }
 }
 
 module.exports = { StoryRepository };

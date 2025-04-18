@@ -153,22 +153,14 @@ class StoryService {
       const userId = await getWaitingUsers(storyId);
       console.log("redis userids", userId);
       for (let ids of userId) {
-        console.log("user userId", userId);
         /**using userid get the email id or store the email id in the redis */
         const user_details = await findById(ids);
-        console.log("user details", user_details);
         const notify_user = await sendEmail(
           user_details.email,
           storyTitle,
           user_details.name
         );
-        console.log(
-          "user EMAIL DETAILS",
-          user_details.email,
-          storyTitle,
-          user_details.name,
-          notify_user
-        );
+
         if (notify_user) {
           const response = await removeNotifiedUser(storyId, userId);
         }
@@ -213,6 +205,7 @@ class StoryService {
   async saveEditedVersion(storyId, fileId, body) {
     try {
       let { content, userID, tags, title } = body;
+      console.log("eding verson ", title);
       await this.unLockStoryService(storyId, title);
       let story = {
         content: content,
@@ -296,6 +289,48 @@ class StoryService {
       return storyData;
     } catch (err) {
       return { error: err.message || "Error fetching story", statusCode: 500 };
+    }
+  }
+
+  async versionStory(storyId, v_id = null) {
+    try {
+      console.log(storyId);
+      let storyData;
+      if (v_id) {
+        storyData = await this.storyRepository.findStoriesByversionId(v_id);
+        storyData = storyData.toObject();
+        storyData = storyData["versions"];
+        console.log(storyData, "storyData");
+        const base64Image = await getImageAsBase64(storyData[0].coverImage);
+        storyData[0].coverImage = base64Image;
+      } else {
+        let story = await this.storyRepository.findStoryById(storyId);
+        // console.log(story);
+        story = story.toObject();
+
+        if (!story) {
+          throw new Error("Story not found");
+        }
+        let s = story["versions"].filter((value) => value.lastEditor);
+        storyData = Promise.all(
+          s.map(async (version) => {
+            const user = await findById(version.lastEditor);
+
+            return [
+              {
+                id: version._id,
+                lastEditor: user.name,
+                updatedTime: version.updatedTime,
+              },
+            ];
+          })
+        );
+      }
+
+      return storyData;
+    } catch (err) {
+      console.error("Error fetching story version:", err);
+      throw err; // or handle accordingly
     }
   }
 }
