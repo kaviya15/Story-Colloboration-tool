@@ -115,7 +115,8 @@ class StoryService {
       const { userId } = body;
       let story = await this.storyRepository.findStoryById(storyId);
       story = story.toObject();
-      console.log("Story", story.likedBy);
+      story = story.versions[story.versions.length - 1];
+      console.log("Story", story);
       if (!story.likedBy.some((id) => id.toString() == userId)) {
         return await this.storyRepository.likeStory(storyId, userId);
       } else {
