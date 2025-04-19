@@ -76,6 +76,19 @@ class StoryService {
 
     return story;
   }
+
+  getContents(string) {
+    console.log("Str", string);
+    let str = JSON.parse(string);
+    console.log("Str", str);
+    for (let s of str) {
+      if (s["type"] == "paragraph") {
+        return s["children"][0].text.split(" ").slice(0, 20).join(" ");
+      }
+    }
+    return "";
+  }
+
   async getAllStoryService() {
     try {
       const stories = await this.storyRepository.findStory();
@@ -84,7 +97,9 @@ class StoryService {
         stories.map(async (story) => {
           story = await this._getStoryDetails(story);
           story["image"] = story["versions"].coverImage;
-          story["versions"].content = "";
+          story["versions"].content = this.getContents(
+            story["versions"].content
+          );
           story["versions"].coverImage = "";
           // let { versions, ...rest } = story;
           return story;
