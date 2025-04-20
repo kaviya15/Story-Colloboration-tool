@@ -17,20 +17,26 @@ module.exports.getLogsService = async function (storyId) {
   try {
     let logData = await getLogs(storyId);
     logData = logData.logs.toObject();
-    console.log("logs", logData);
+    logData = logData.slice(0, 20);
+    // console.log("logs", logData);
 
     const resp = await Promise.all(
-      logData.map(async (value) => {
-        const response = await getUserById(value.user_id);
-        let logmessage = null;
-        if (response) {
-          logmessage = `${response?.name} ${value.message} at ${formatDate(
-            value.timestamp
-          )}`;
-        }
-        return { ...value, logmessage };
-      })
+      logData
+        .filter((value) => value.user_id) // Filter out logs that don't have user_id
+        .map(async (value) => {
+          const response = await getUserById(value.user_id);
+          console.log(response, value);
+          let logmessage = null;
+          if (response) {
+            logmessage = `${response?.name} ${value.message} at ${formatDate(
+              value.timestamp
+            )}`;
+            return { ...value, logmessage };
+          }
+          return { ...value };
+        })
     );
+
     return resp;
   } catch (err) {
     console.log(err, "error");

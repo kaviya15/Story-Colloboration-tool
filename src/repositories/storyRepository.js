@@ -131,17 +131,16 @@ class StoryRepository {
     }
   }
 
-  async saveEditedVersion(storyId, story, userId) {
+  async saveEditedVersion(storyId, story, userID) {
     try {
       const data = await Story.findByIdAndUpdate(
         storyId,
         {
           $push: { versions: story },
-          $addToSet: { allContributors: userId },
+          $addToSet: { allContributors: userID },
         },
         { new: true } // Return the updated story
       );
-      console.log("edited version", data);
       const freshStory = await Story.findById(storyId);
       return data;
     } catch (e) {
@@ -159,6 +158,18 @@ class StoryRepository {
 
   async findStoriesByUserId(userId) {
     return await Story.find({ createdBy: userId });
+  }
+
+  async findStoriesByversionId(version_id) {
+    try {
+      const version = await Story.findOne(
+        { "versions._id": version_id },
+        { versions: { $elemMatch: { _id: version_id } } }
+      );
+      return version;
+    } catch (e) {
+      throw e;
+    }
   }
 }
 

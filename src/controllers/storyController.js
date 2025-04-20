@@ -8,7 +8,7 @@ const storyService = new StoryService();
 module.exports.createStoryController = async (req, res) => {
   try {
     const data = await storyService.createStoryService(req.fileId, req.body);
-    console.log(req.body, "req.body");
+    // console.log(req.body, "req.body");
     return sendSuccessResponse(res, data);
   } catch (e) {
     return sendErrorResponse(res, e);
@@ -131,6 +131,27 @@ module.exports.deleteStoryController = async (req, res) => {
   try {
     const result = await storyService.findByIdAndDelete(req.params.storyId);
     sendSuccessResponse(res, result);
+  } catch (err) {
+    sendErrorResponse(res, err);
+  }
+};
+
+module.exports.versionStoryController = async (req, res) => {
+  try {
+    const result = await storyService.versionStory(req.params.storyId);
+    sendSuccessResponse(res, result);
+  } catch (err) {
+    sendErrorResponse(res, err);
+  }
+};
+
+module.exports.versionSpecificStoryController = async (req, res) => {
+  const result = await storyService.versionStory(
+    req.params.storyId,
+    req.body.v_id
+  );
+  sendSuccessResponse(res, result);
+  try {
   } catch (err) {
     sendErrorResponse(res, err);
   }

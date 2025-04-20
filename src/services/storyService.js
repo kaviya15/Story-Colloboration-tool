@@ -14,7 +14,7 @@ class StoryService {
     this.storyRepository = new StoryRepository();
   }
   async createStoryService(fileId, body) {
-    console.log(body, "body");
+    // console.log(body, "body");
     try {
       const storyData = {
         versions: [
@@ -40,7 +40,7 @@ class StoryService {
     // console.log("story", story);
     story = story.toObject(); // mongodb gives immutable object to make it mutable convert the data object from db to object
     const user = await findById(story.createdBy);
-    console.log(user, "user", story.createdBy);
+    // console.log(user, "user", story.createdBy);
     story.owner = user.name;
 
     if (Array.isArray(story["versions"]) && story["versions"].length > 0) {
@@ -51,7 +51,7 @@ class StoryService {
 
     if (story["versions"].coverImage) {
       try {
-        console.log("Fetching image for ID:", story["versions"].coverImage);
+        // console.log("Fetching image for ID:", story["versions"].coverImage);
         const base64Image = await getImageAsBase64(
           story["versions"].coverImage
         );
@@ -76,6 +76,19 @@ class StoryService {
 
     return story;
   }
+
+  getContents(string) {
+    console.log("Str", string);
+    let str = JSON.parse(string);
+    console.log("Str", str);
+    for (let s of str) {
+      if (s["type"] == "paragraph") {
+        return s["children"][0].text.split(" ").slice(0, 20).join(" ");
+      }
+    }
+    return "";
+  }
+
   async getAllStoryService() {
     try {
       const stories = await this.storyRepository.findStory();
@@ -84,7 +97,9 @@ class StoryService {
         stories.map(async (story) => {
           story = await this._getStoryDetails(story);
           story["image"] = story["versions"].coverImage;
-          story["versions"].content = "";
+          story["versions"].content = this.getContents(
+            story["versions"].content
+          );
           story["versions"].coverImage = "";
           // let { versions, ...rest } = story;
           return story;
@@ -100,7 +115,7 @@ class StoryService {
   async getStoryService(storyId) {
     try {
       let story = await this.storyRepository.findStoryById(storyId);
-      console.log(story, "Story");
+      // console.log(story, "Story");
       story = await this._getStoryDetails(story);
       return story;
     } catch (e) {
@@ -115,7 +130,8 @@ class StoryService {
       const { userId } = body;
       let story = await this.storyRepository.findStoryById(storyId);
       story = story.toObject();
-      console.log("Story", story.likedBy);
+      story = story.versions[story.versions.length - 1];
+      console.log("Story", story);
       if (!story.likedBy.some((id) => id.toString() == userId)) {
         return await this.storyRepository.likeStory(storyId, userId);
       } else {
@@ -153,22 +169,14 @@ class StoryService {
       const userId = await getWaitingUsers(storyId);
       console.log("redis userids", userId);
       for (let ids of userId) {
-        console.log("user userId", userId);
         /**using userid get the email id or store the email id in the redis */
         const user_details = await findById(ids);
-        console.log("user details", user_details);
         const notify_user = await sendEmail(
           user_details.email,
           storyTitle,
           user_details.name
         );
-        console.log(
-          "user EMAIL DETAILS",
-          user_details.email,
-          storyTitle,
-          user_details.name,
-          notify_user
-        );
+
         if (notify_user) {
           const response = await removeNotifiedUser(storyId, userId);
         }
@@ -212,23 +220,19 @@ class StoryService {
 
   async saveEditedVersion(storyId, fileId, body) {
     try {
-      let { content, userId, tags, title } = body;
+      let { content, userID, tags, title } = body;
+      console.log("eding verson ", title);
       await this.unLockStoryService(storyId, title);
       let story = {
         content: content,
         coverImage: fileId,
-        lastEditor: userId,
+        lastEditor: userID,
         tags,
         title,
       };
-      console.log(fileId);
       if (fileId == undefined) {
         //get the latest story version object id
         const storyData = await this.storyRepository.findStoryById(storyId);
-        console.log(
-          "no image",
-          storyData.versions[storyData.versions.length - 1]
-        );
         if (storyData.versions[storyData.versions.length - 1].coverImage)
           story["coverImage"] =
             storyData.versions[storyData.versions.length - 1].coverImage;
@@ -237,7 +241,7 @@ class StoryService {
       const response = await this.storyRepository.saveEditedVersion(
         storyId,
         story,
-        userId
+        userID
       );
       return response;
     } catch (err) {
@@ -301,6 +305,48 @@ class StoryService {
       return storyData;
     } catch (err) {
       return { error: err.message || "Error fetching story", statusCode: 500 };
+    }
+  }
+
+  async versionStory(storyId, v_id = null) {
+    try {
+      console.log(storyId);
+      let storyData;
+      if (v_id) {
+        storyData = await this.storyRepository.findStoriesByversionId(v_id);
+        storyData = storyData.toObject();
+        storyData = storyData["versions"];
+        console.log(storyData, "storyData");
+        const base64Image = await getImageAsBase64(storyData[0].coverImage);
+        storyData[0].coverImage = base64Image;
+      } else {
+        let story = await this.storyRepository.findStoryById(storyId);
+        // console.log(story);
+        story = story.toObject();
+
+        if (!story) {
+          throw new Error("Story not found");
+        }
+        let s = story["versions"].filter((value) => value.lastEditor);
+        storyData = Promise.all(
+          s.map(async (version) => {
+            const user = await findById(version.lastEditor);
+
+            return [
+              {
+                id: version._id,
+                lastEditor: user.name,
+                updatedTime: version.updatedTime,
+              },
+            ];
+          })
+        );
+      }
+
+      return storyData;
+    } catch (err) {
+      console.error("Error fetching story version:", err);
+      throw err; // or handle accordingly
     }
   }
 }

@@ -12,11 +12,16 @@ const {
   getUserStoriesController,
   getPaginatedStoriesController,
   deleteStoryController,
+  versionStoryController,
+  versionSpecificStoryController,
 } = require("../controllers/storyController");
 
 const { uploadFileMiddleware } = require("../middleware/upload");
 /** need to add middleware to check session */
 router.post("/create", uploadFileMiddleware, createStoryController);
+router.get("/getversions/:storyId", versionStoryController);
+router.post("/getversions/:storyId", versionSpecificStoryController);
+
 router.post("/like/:storyId", likeStoryController);
 router.post("/notify/:storyId", subscribeNotificationsController);
 router.post("/lock/:storyId", editStoryController);

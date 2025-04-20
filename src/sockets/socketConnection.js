@@ -19,5 +19,21 @@ module.exports.editFunction = (io) => {
         console.error("Error while broadcasting:", err);
       }
     });
+
+    socket.on("liveEdit", (storyId, userid, content, title, image) => {
+      console.log("liveEdit is triggered");
+      try {
+        socket.broadcast.emit("liveEdit", {
+          storyId,
+          userid,
+          content,
+          title,
+          image,
+        });
+        /**notify all the users  */
+      } catch (err) {
+        console.error("Error while broadcasting:", err);
+      }
+    });
   });
 };
