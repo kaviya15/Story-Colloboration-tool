@@ -6,9 +6,13 @@ const sendEmail = async (userEmail, storyTitle, userName) => {
   const msg = {
     to: userEmail, // Change to your recipient
     from: "kaviya.sivaraj1507@gmail.com", // Change to your verified sender
-    subject: "Message from Plotline",
+    subject: `✍️ Your story ${storyTitle} is ready to edit!`,
     text: "Hey there user" + userName,
-    html: `<strong>Wanna write some story ??? The story <em> ${storyTitle} </em> is available to edit now.  </strong>`,
+    html: `Wanna dive back into writing? Your story <strong> “${storyTitle}” </strong> is now available for editing.
+Let your creativity flow — the next chapter awaits! 📖✨
+
+    Happy writing,
+    – The Plotline Team`,
   };
   let response = await sgMail.send(msg);
   console.log(" email Response", response);
