@@ -210,6 +210,8 @@ class StoryService {
       const { userId } = body;
       if (story.currentEditor && story.currentEditor != userId) {
         throw new Error(story.currentEditor);
+      } else if (story.currentEditor == userId) {
+        return { currentEditor: userId, bool: true };
       }
       const response = await this.storyRepository.lockStory(storyId, userId);
       return response;

@@ -14,6 +14,7 @@ const {
   deleteStoryController,
   versionStoryController,
   versionSpecificStoryController,
+  getEditingVersion,
 } = require("../controllers/storyController");
 
 const { uploadFileMiddleware } = require("../middleware/upload");
@@ -30,6 +31,7 @@ router.put("/discard/:storyId", discardStoryController);
 router.get("/created/:id", getUserStoriesController);
 router.get("/userstories/stories", getPaginatedStoriesController);
 router.delete("/:storyId", deleteStoryController);
+router.get("/getEditingVersion/:storyId", getEditingVersion);
 
 router.get("/:storyId", getStoryController);
 router.get("/", getAllStoriesController);

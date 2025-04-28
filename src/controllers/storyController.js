@@ -76,7 +76,7 @@ module.exports.publishStoryController = async (req, res) => {
       req.fileId,
       req.body
     );
-    console.log("publish story controller", saveStory);
+    // console.log("publish story controller", saveStory);
     return sendSuccessResponse(res, saveStory);
   } catch (e) {
     return sendErrorResponse(res, e);
@@ -150,6 +150,16 @@ module.exports.versionSpecificStoryController = async (req, res) => {
     req.params.storyId,
     req.body.v_id
   );
+  sendSuccessResponse(res, result);
+  try {
+  } catch (err) {
+    sendErrorResponse(res, err);
+  }
+};
+
+const { getStoryEditingVersion } = require("../utils/redisHelper");
+module.exports.getEditingVersion = async (req, res) => {
+  const result = await getStoryEditingVersion(req.params.storyId);
   sendSuccessResponse(res, result);
   try {
   } catch (err) {

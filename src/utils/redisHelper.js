@@ -32,9 +32,21 @@ async function removeNotifiedUser(storyId, userId) {
   console.log(`User ${notifiedUser} has been removed for story ${storyId}`);
   return notifiedUser;
 }
+
+async function storeEditingVersion(content, title, storyid) {
+  let stringifiedData = JSON.stringify({ title, content });
+  await client.set(`Editing:story:${storyid}`, stringifiedData);
+}
+async function getStoryEditingVersion(storyid) {
+  console.log(await client.get(`Editing:story:${storyid}`), storyid);
+  return await client.get(`Editing:story:${storyid}`);
+}
+
 module.exports = {
   storeUserForStory,
   getWaitingUsers,
   removeNotifiedUser,
   checkUserExits,
+  storeEditingVersion,
+  getStoryEditingVersion,
 };

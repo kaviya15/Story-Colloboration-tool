@@ -1,3 +1,4 @@
+const { storeEditingVersion } = require("../utils/redisHelper");
 module.exports.editFunction = (io) => {
   io.on("connection", (socket) => {
     console.log("user connected", socket.id);
@@ -31,6 +32,7 @@ module.exports.editFunction = (io) => {
           image,
         });
         /**notify all the users  */
+        storeEditingVersion(content, title, storyId);
       } catch (err) {
         console.error("Error while broadcasting:", err);
       }
