@@ -6,6 +6,7 @@ const {
   getUserProfile,
   logout,
   authentication,
+  resetPassword,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -14,6 +15,7 @@ const router = express.Router();
 router.get("/auth", authentication);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/reset_password", resetPassword);
 router.post("/logout", logout);
 router.get("/:id", getUser);
 router.get("/profile/:id", getUserProfile);

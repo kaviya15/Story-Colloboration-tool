@@ -9,4 +9,14 @@ const createUser = async (userData) => {
   return await user.save();
 };
 
-module.exports = { findById, findByEmail, createUser };
+const resetPassword = async (email, hashedPassword) => {
+  const user = await User.findOneAndUpdate(
+    { email: email },
+    { password: hashedPassword },
+    { new: true }
+  );
+  console.log("user", user);
+  return user;
+};
+
+module.exports = { findById, findByEmail, createUser, resetPassword };

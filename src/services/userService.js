@@ -17,6 +17,14 @@ const registerUser = async (name, email, password) => {
   });
 };
 
+const resetPassword = async (body) => {
+  const { email, password } = body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = userRepository.resetPassword(email, hashedPassword);
+
+  let token = generateToken(user.email);
+  return { email, token, name: user.name, _id: user._id };
+};
 const loginUser = async (body) => {
   try {
     const { email, password } = body;
@@ -37,9 +45,13 @@ const loginUser = async (body) => {
 const getUserProfile = async (userId) => {
   try {
     const user = await User.findById(userId);
-    if (!user) return { error: 'User not found', statusCode: 404 };
-    const totalStoriesWritten = await Story.countDocuments({ createdBy: userId });
-    const totalContributions = await Story.countDocuments({ contributors: userId});
+    if (!user) return { error: "User not found", statusCode: 404 };
+    const totalStoriesWritten = await Story.countDocuments({
+      createdBy: userId,
+    });
+    const totalContributions = await Story.countDocuments({
+      contributors: userId,
+    });
     return {
       name: user.name,
       profilePic: user.profilePic,
@@ -47,11 +59,17 @@ const getUserProfile = async (userId) => {
       totalContributions,
     };
   } catch (err) {
-    console.log(err)
+    console.log(err);
     throw new Error(err + " issue in user service layer");
   }
 };
 
 const getUserById = async (userId) => userRepository.findById(userId);
 
-module.exports = { registerUser, getUserById,getUserProfile, loginUser };
+module.exports = {
+  registerUser,
+  getUserById,
+  getUserProfile,
+  loginUser,
+  resetPassword,
+};

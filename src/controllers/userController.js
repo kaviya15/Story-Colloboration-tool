@@ -55,11 +55,32 @@ const loginUser = async (req, res) => {
   }
 };
 
+const resetPassword = async (req, res) => {
+  try {
+    const existingUser = await userService.resetPassword(req.body);
+    const { token, ...rest } = existingUser;
+    if (existingUser) {
+      res.cookie("token", token, {
+        httpOnly: true, // Makes the cookie inaccessible to JavaScript
+        sameSite: "None", // Allow cross-origin cookies
+        secure: true, // Set to false for local dev (no HTTPS)
+        path: "/",
+      });
+
+      sendSuccessResponse(res, rest);
+    }
+  } catch (e) {
+    sendErrorResponse(res, e);
+  }
+};
+
 const getUserProfile = async (req, res) => {
   try {
-    const userProfile = await userService.getUserProfile(req.params.id); 
+    const userProfile = await userService.getUserProfile(req.params.id);
     if (userProfile.error) {
-      return res.status(result.statusCode || 500).json({ message: userProfile.error });
+      return res
+        .status(result.statusCode || 500)
+        .json({ message: userProfile.error });
     }
     res.json(userProfile);
   } catch (error) {
@@ -82,7 +103,7 @@ const logout = async (req, res) => {
 
 const authentication = async (req, res) => {
   const token = req.cookies.token;
-  if (!token) return res.status(401).json({ message: 'Unauthorized' });
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
     const user = await verifyToken(token, process.env.JWT_SECRET);
@@ -91,8 +112,16 @@ const authentication = async (req, res) => {
     }
     return res.json({ user });
   } catch (err) {
-    res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({ message: "Invalid token" });
   }
-}
+};
 
-module.exports = { registerUser, getUser, loginUser,getUserProfile, logout, authentication};
+module.exports = {
+  registerUser,
+  getUser,
+  loginUser,
+  getUserProfile,
+  logout,
+  authentication,
+  resetPassword,
+};
