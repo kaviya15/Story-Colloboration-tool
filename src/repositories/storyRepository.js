@@ -109,7 +109,7 @@ class StoryRepository {
         },
         { new: true } // Return the updated story
       );
-      console.log("data", data);
+      // console.log("data", data);
       return data;
     } catch (e) {
       return e;
@@ -124,7 +124,7 @@ class StoryRepository {
         },
         { new: true } // Return the updated story
       );
-      console.log("data", data);
+      // console.log("data", data);
       return data;
     } catch (e) {
       return e;

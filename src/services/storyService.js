@@ -2,11 +2,13 @@ const { StoryRepository } = require("../repositories/storyRepository");
 const { getImageAsBase64 } = require("../utils/imageConverter");
 const { findById } = require("../repositories/userRepository");
 const { deleteLogs } = require("../repositories/logRepository");
+
 const {
   storeUserForStory,
   checkUserExits,
   getWaitingUsers,
   removeNotifiedUser,
+  delStoryEditingVersion,
 } = require("../utils/redisHelper");
 const { sendEmail } = require("../utils/email");
 class StoryService {
@@ -194,6 +196,8 @@ class StoryService {
       // const { storyTitle, context } = body;
       /**unlock story get from version from  */
       const response = await this.storyRepository.unLockStory(storyId);
+      /**delete data from redis */
+      await delStoryEditingVersion(storyId);
 
       await this.sendNotificationsService(storyId, storyTitle);
       /**notify the users */

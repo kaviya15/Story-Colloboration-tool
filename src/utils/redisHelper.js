@@ -41,6 +41,9 @@ async function getStoryEditingVersion(storyid) {
   console.log(await client.get(`Editing:story:${storyid}`), storyid);
   return await client.get(`Editing:story:${storyid}`);
 }
+async function delStoryEditingVersion(storyid) {
+  return await client.del(`Editing:story:${storyid}`);
+}
 
 module.exports = {
   storeUserForStory,
@@ -49,4 +52,5 @@ module.exports = {
   checkUserExits,
   storeEditingVersion,
   getStoryEditingVersion,
+  delStoryEditingVersion,
 };
